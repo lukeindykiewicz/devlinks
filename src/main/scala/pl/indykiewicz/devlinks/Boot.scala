@@ -1,0 +1,19 @@
+package pl.indykiewicz.devlinks
+
+import akka.actor.{ActorSystem, Props}
+import akka.io.IO
+import spray.can.Http
+
+object Boot extends App with DevlinksServicesModule with ServerStartup
+
+trait DevlinksServicesModule {
+  implicit val system = ActorSystem("devlinks-actors")
+  val dzoneService = system.actorOf(Props[DzoneServiceActor], "dzone-actor")
+  val devlinksService = system.actorOf(Props[DevlinksServiceActor], "devlinks-actor")
+}
+
+trait ServerStartup {
+  devlinksServicesModule: DevlinksServicesModule =>
+
+  IO(Http) ! Http.Bind(devlinksService, interface = "localhost", port = 8080)
+}
