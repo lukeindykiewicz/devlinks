@@ -8,11 +8,11 @@ class DevlinksSpec extends Specification with Specs2RouteTest with DevlinksServi
   
   "DevlinksService" should {
 
-    "return some message for GET requests to the root path" in {
-      Get() ~> rootRoute ~> check {
-        responseAs[String] must contain("some")
-      }
-    }
+//    "return some message for GET requests to the root path" in {
+//      Get() ~> rootRoute ~> check {
+//        responseAs[String] must contain("some")
+//      }
+//    }
 
     "leave GET requests to other paths unhandled" in {
       Get("/other") ~> rootRoute ~> check {
