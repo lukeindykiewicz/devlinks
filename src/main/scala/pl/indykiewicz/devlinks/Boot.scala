@@ -8,7 +8,7 @@ object Boot extends App with DevlinksServicesModule with ServerStartup
 
 trait DevlinksServicesModule {
   implicit val system = ActorSystem("devlinks-actors")
-  val dzoneService = system.actorOf(Props[DzoneServiceActor], "dzone-actor")
+  val dzoneService = system.actorOf(Props[DzoneService], "dzone-actor")
   val devlinksService = system.actorOf(Props[DevlinksServiceActor], "devlinks-actor")
 }
 

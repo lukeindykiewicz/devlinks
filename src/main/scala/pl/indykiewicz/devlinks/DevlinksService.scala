@@ -23,8 +23,8 @@ trait DevlinksService extends HttpService {
     get {
       path("") {
         ctx: RequestContext =>
-          val getterActor = actorRefFactory.actorOf(Props(creator = { () => new GetterActor(ctx) }))
-          getterActor ! GetterActor.GetLinks
+          val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
+          getterService ! GetterService.GetLinks
       }
     }
   }
