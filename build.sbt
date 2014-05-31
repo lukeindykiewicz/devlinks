@@ -18,6 +18,7 @@ libraryDependencies ++= {
     "io.spray"            %   "spray-routing" % sprayVersion,
     "io.spray"            %%  "spray-json"    % "1.2.6",
     "io.spray"            %   "spray-client"  % sprayVersion,
+    "org.json4s"          %% "json4s-native"  % "3.2.9",
     "io.spray"            %   "spray-testkit" % sprayVersion  % "test",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaVersion,
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaVersion   % "test",

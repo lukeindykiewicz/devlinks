@@ -2,6 +2,7 @@ package pl.indykiewicz.devlinks
 
 import akka.actor.{Props, Actor}
 import spray.routing._
+import spray.http.MediaTypes
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -21,10 +22,12 @@ trait DevlinksService extends HttpService {
 
   lazy val rootRoute = {
     get {
-      path("") {
-        ctx: RequestContext =>
-          val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
-          getterService ! GetterService.GetLinks
+      respondWithMediaType(MediaTypes.`application/json`) {
+        path("") {
+          ctx: RequestContext =>
+            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
+            getterService ! GetterService.GetLinks
+        }
       }
     }
   }
