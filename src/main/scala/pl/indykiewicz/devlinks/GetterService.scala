@@ -21,29 +21,15 @@ class GetterService(requestContext: RequestContext) extends Actor with ActorLogg
 
   override def receive = LoggingReceive {
     case GetLinks => {
-      val dzoneService = system.actorOf(Props[DzoneService])
-      workers += dzoneService
-      dzoneService ! NewsService.GetNews
 
-      val hNService = system.actorOf(Props[HackerNewsService])
-      workers += hNService
-      hNService ! NewsService.GetNews
+      def getNews(props: Props) {
+        val service = system.actorOf(props)
+        workers += service
+        service ! NewsService.GetNews
+      }
 
-      val infoQService = system.actorOf(Props[InfoQService])
-      workers += infoQService
-      infoQService ! NewsService.GetNews
-
-      val javaRedditService = system.actorOf(Props[JavaRedditService])
-      workers += javaRedditService
-      javaRedditService ! NewsService.GetNews
-
-      val scalaRedditService = system.actorOf(Props[JavaRedditService])
-      workers += scalaRedditService
-      scalaRedditService ! NewsService.GetNews
-
-      val programmingRedditService = system.actorOf(Props[JavaRedditService])
-      workers += programmingRedditService
-      programmingRedditService ! NewsService.GetNews
+      val sources = List(Props[DzoneService], Props[HackerNewsService], Props[InfoQService], Props[JavaRedditService], Props[JavaRedditService], Props[JavaRedditService])
+      sources.foreach(getNews)
     }
     case Done(links) => {
 
