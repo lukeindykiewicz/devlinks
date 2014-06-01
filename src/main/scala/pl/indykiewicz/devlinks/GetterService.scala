@@ -8,7 +8,7 @@ import org.json4s.native.Serialization
 object GetterService {
   sealed class GetterServiceMessage
   case class GetLinks(ctx: RequestContext) extends GetterServiceMessage
-  case class Done(links: Seq[HackUrl]) extends GetterServiceMessage
+  case class Done(links: Seq[Devlink]) extends GetterServiceMessage
 }
 
 class GetterService(requestContext: RequestContext) extends Actor with ActorLogging {
@@ -17,7 +17,7 @@ class GetterService(requestContext: RequestContext) extends Actor with ActorLogg
 
   override def receive = LoggingReceive {
     case GetLinks => {
-      dzoneService ! DzoneService.GetNewDzoneNews
+      dzoneService ! NewsService.GetNews
     }
     case Done(links) => {
 
