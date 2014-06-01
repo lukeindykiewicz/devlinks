@@ -1,6 +1,6 @@
 package pl.indykiewicz.devlinks
 
-import akka.actor.{ActorLogging, Actor}
+import akka.actor.{PoisonPill, ActorLogging, Actor}
 import akka.event.LoggingReceive
 import scala.concurrent.{Await, Future}
 import spray.http._
@@ -20,7 +20,7 @@ trait NewsService extends Actor with ActorLogging {
   import system.dispatcher
 
   def url : String
-  def extractNews : HttpResponse => Seq[Devlink]
+  def extractNews : HttpResponse => List[Devlink]
 
   override def receive = LoggingReceive {
     case GetNews => {
@@ -30,16 +30,18 @@ trait NewsService extends Actor with ActorLogging {
       val response = Await.result(responseFuture, 20 seconds)
 
       sender ! GetterService.Done(extractNews(response))
+      self ! PoisonPill
     }
   }
 
 }
 
 class DzoneService extends NewsService {
+
   override def url = "http://feeds.dzone.com/dzone/frontpage"
-  override def extractNews : HttpResponse => Seq[Devlink] = {
+  override def extractNews : HttpResponse => List[Devlink] = {
     response =>
       val dzoneXml = scala.xml.XML.loadString(response.entity.data.asString)
-      (dzoneXml \ "channel" \ "item" ) map { x => (x \ "title", x \ "description", x \ "link")  } map {case (t,d,l) => Devlink(t.text, l.text, d.text)}
+      ((dzoneXml \ "channel" \ "item" ) map { x => (x \ "title", x \ "description", x \ "link")  } map {case (t,d,l) => Devlink(t.text, l.text, d.text)}).toList
   }
 }

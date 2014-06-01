@@ -1,23 +1,33 @@
 package pl.indykiewicz.devlinks
 
-import akka.actor.{PoisonPill, ActorLogging, Actor}
+import akka.actor._
 import akka.event.LoggingReceive
-import spray.routing.RequestContext
 import org.json4s.native.Serialization
+import scala.collection.immutable.HashSet
+import spray.routing.RequestContext
 
 object GetterService {
   sealed class GetterServiceMessage
   case class GetLinks(ctx: RequestContext) extends GetterServiceMessage
-  case class Done(links: Seq[Devlink]) extends GetterServiceMessage
+  case class Done(links: List[Devlink]) extends GetterServiceMessage
 }
 
 class GetterService(requestContext: RequestContext) extends Actor with ActorLogging {
   import GetterService._
-  import Boot.dzoneService
+  import Boot.system
+
+  var workers = new HashSet[ActorRef]
+  var allLinks : List[Devlink] = List.empty
 
   override def receive = LoggingReceive {
     case GetLinks => {
+      val dzoneService = system.actorOf(Props[DzoneService])
+      workers += dzoneService
       dzoneService ! NewsService.GetNews
+
+      val dzoneService2 = system.actorOf(Props[DzoneService])
+      workers += dzoneService2
+      dzoneService2 ! NewsService.GetNews
     }
     case Done(links) => {
 
@@ -25,8 +35,13 @@ class GetterService(requestContext: RequestContext) extends Actor with ActorLogg
       import org.json4s.native.Serialization._
       implicit val formats = Serialization.formats(NoTypeHints)
 
-      requestContext.complete(writePretty(links))
-      self ! PoisonPill
+      workers -= sender
+      allLinks = allLinks ::: links
+
+      if (workers.isEmpty) {
+        requestContext.complete(writePretty(allLinks))
+        self ! PoisonPill
+      }
     }
   }
 }
