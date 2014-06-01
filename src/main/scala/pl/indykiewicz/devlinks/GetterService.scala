@@ -25,9 +25,25 @@ class GetterService(requestContext: RequestContext) extends Actor with ActorLogg
       workers += dzoneService
       dzoneService ! NewsService.GetNews
 
-      val dzoneService2 = system.actorOf(Props[DzoneService])
-      workers += dzoneService2
-      dzoneService2 ! NewsService.GetNews
+      val hNService = system.actorOf(Props[HackerNewsService])
+      workers += hNService
+      hNService ! NewsService.GetNews
+
+      val infoQService = system.actorOf(Props[InfoQService])
+      workers += infoQService
+      infoQService ! NewsService.GetNews
+
+      val javaRedditService = system.actorOf(Props[JavaRedditService])
+      workers += javaRedditService
+      javaRedditService ! NewsService.GetNews
+
+      val scalaRedditService = system.actorOf(Props[JavaRedditService])
+      workers += scalaRedditService
+      scalaRedditService ! NewsService.GetNews
+
+      val programmingRedditService = system.actorOf(Props[JavaRedditService])
+      workers += programmingRedditService
+      programmingRedditService ! NewsService.GetNews
     }
     case Done(links) => {
 

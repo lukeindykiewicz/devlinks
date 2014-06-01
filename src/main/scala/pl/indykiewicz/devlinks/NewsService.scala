@@ -20,7 +20,11 @@ trait NewsService extends Actor with ActorLogging {
   import system.dispatcher
 
   def url : String
-  def extractNews : HttpResponse => List[Devlink]
+  def extractNews : HttpResponse => List[Devlink] = {
+    response =>
+    val xml = scala.xml.XML.loadString(response.entity.data.asString)
+    ((xml \ "channel" \ "item" ) map { x => (x \ "title", x \ "description", x \ "link")  } map {case (t,d,l) => Devlink(t.text, l.text, d.text)}).toList
+  }
 
   override def receive = LoggingReceive {
     case GetNews => {
@@ -37,11 +41,25 @@ trait NewsService extends Actor with ActorLogging {
 }
 
 class DzoneService extends NewsService {
-
   override def url = "http://feeds.dzone.com/dzone/frontpage"
-  override def extractNews : HttpResponse => List[Devlink] = {
-    response =>
-      val dzoneXml = scala.xml.XML.loadString(response.entity.data.asString)
-      ((dzoneXml \ "channel" \ "item" ) map { x => (x \ "title", x \ "description", x \ "link")  } map {case (t,d,l) => Devlink(t.text, l.text, d.text)}).toList
-  }
+}
+
+class HackerNewsService extends NewsService {
+  override def url = "https://news.ycombinator.com/rss"
+}
+
+class InfoQService extends NewsService {
+  override def url = "http://www.infoq.com/feed"
+}
+
+class JavaRedditService extends NewsService {
+  override def url = "http://www.reddit.com/r/java/.rss"
+}
+
+class ScalaRedditService extends NewsService {
+  override def url = "http://www.reddit.com/r/scala/.rss"
+}
+
+class ProgrammingRedditService extends NewsService {
+  override def url = "http://www.reddit.com/r/programming/.rss"
 }
