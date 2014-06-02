@@ -1,6 +1,6 @@
 package pl.indykiewicz.devlinks
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import spray.routing._
 import spray.http.MediaTypes
 
@@ -22,42 +22,34 @@ trait DevlinksService extends HttpService {
 
   lazy val rootRoute = {
     get {
-      path("all") {
-        respondWithMediaType(MediaTypes.`application/json`) {
-          ctx: RequestContext =>
-            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
-            getterService ! GetterService.GetLinks
-        }
-      } ~
-      path("dzone") {
-        respondWithMediaType(MediaTypes.`application/json`) {
-          ctx: RequestContext =>
-            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
-            getterService ! GetterService.GetDzoneLinks
-        }
-      } ~
-      path("infoq") {
-        respondWithMediaType(MediaTypes.`application/json`) {
-          ctx: RequestContext =>
-            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
-            getterService ! GetterService.GetInfoQLinks
-        }
-      } ~
-      path("hn") {
-        respondWithMediaType(MediaTypes.`application/json`) {
-          ctx: RequestContext =>
-            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
-            getterService ! GetterService.GetHackerNewsLinks
-        }
-      } ~
-      path("reddit") {
-        respondWithMediaType(MediaTypes.`application/json`) {
-          ctx: RequestContext =>
-            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
-            getterService ! GetterService.GetRedditLinks
-        }
-      }
+      respondWithMediaType(MediaTypes.`application/json`) {
 
+        def prepareGetterServiceActor(ctx: RequestContext): ActorRef = {
+          actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
+        }
+
+        path("all") {
+          ctx: RequestContext =>
+            prepareGetterServiceActor(ctx) ! GetterService.GetLinks
+        } ~
+        path("dzone") {
+          ctx: RequestContext =>
+            prepareGetterServiceActor(ctx) ! GetterService.GetDzoneLinks
+        } ~
+        path("infoq") {
+          ctx: RequestContext =>
+            prepareGetterServiceActor(ctx) ! GetterService.GetInfoQLinks
+        } ~
+        path("hn") {
+          ctx: RequestContext =>
+            prepareGetterServiceActor(ctx) ! GetterService.GetHackerNewsLinks
+        } ~
+        path("reddit") {
+          ctx: RequestContext =>
+            prepareGetterServiceActor(ctx) ! GetterService.GetRedditLinks
+        }
+
+      }
     }
 
   }

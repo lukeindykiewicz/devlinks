@@ -23,7 +23,7 @@ class GetterService(requestContext: RequestContext) extends Actor with ActorLogg
   var workers = new HashSet[ActorRef]
   var allLinks : List[Devlink] = List.empty
 
-  def getNews(props: Props) {
+  private def getNews(props: Props) {
     val service = system.actorOf(props)
     workers += service
     service ! NewsService.GetNews
