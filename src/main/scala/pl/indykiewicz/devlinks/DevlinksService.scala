@@ -30,6 +30,15 @@ trait DevlinksService extends HttpService {
         }
       }
     }
+    get {
+      respondWithMediaType(MediaTypes.`application/json`) {
+        path("/dzoneNews") {
+          ctx: RequestContext =>
+            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
+            getterService ! GetterService.GetLinks
+        }
+      }
+    }
   }
 
 }
