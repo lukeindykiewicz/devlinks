@@ -22,23 +22,43 @@ trait DevlinksService extends HttpService {
 
   lazy val rootRoute = {
     get {
-      respondWithMediaType(MediaTypes.`application/json`) {
-        path("") {
+      path("all") {
+        respondWithMediaType(MediaTypes.`application/json`) {
           ctx: RequestContext =>
             val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
             getterService ! GetterService.GetLinks
         }
-      }
-    }
-    get {
-      respondWithMediaType(MediaTypes.`application/json`) {
-        path("/dzoneNews") {
+      } ~
+      path("dzone") {
+        respondWithMediaType(MediaTypes.`application/json`) {
           ctx: RequestContext =>
             val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
-            getterService ! GetterService.GetLinks
+            getterService ! GetterService.GetDzoneLinks
+        }
+      } ~
+      path("infoq") {
+        respondWithMediaType(MediaTypes.`application/json`) {
+          ctx: RequestContext =>
+            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
+            getterService ! GetterService.GetInfoQLinks
+        }
+      } ~
+      path("hn") {
+        respondWithMediaType(MediaTypes.`application/json`) {
+          ctx: RequestContext =>
+            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
+            getterService ! GetterService.GetHackerNewsLinks
+        }
+      } ~
+      path("reddit") {
+        respondWithMediaType(MediaTypes.`application/json`) {
+          ctx: RequestContext =>
+            val getterService = actorRefFactory.actorOf(Props(creator = { () => new GetterService(ctx) }))
+            getterService ! GetterService.GetRedditLinks
         }
       }
-    }
-  }
 
+    }
+
+  }
 }
